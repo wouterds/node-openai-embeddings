@@ -1,8 +1,12 @@
 import colors from 'colors';
+import csvParser from 'csv-parser';
+import { formatDistanceToNowStrict } from 'date-fns';
 import { config as dotenv } from 'dotenv';
 import fs from 'fs';
 import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs/yargs';
+
+import VectorDB from '../services/vector-db';
 
 dotenv();
 
@@ -22,4 +26,42 @@ if (!fs.existsSync(csv)) {
   process.exit(1);
 }
 
-(async () => {})();
+console.log(colors.yellow(`CSV: ${colors.underline(csv)}`));
+
+(async () => {
+  const start = new Date();
+  const vectorDb = new VectorDB('./data/db');
+  await vectorDb.init();
+
+  const promises: Promise<boolean>[] = [];
+  await new Promise(resolve => {
+    fs.createReadStream(csv)
+      .pipe(csvParser())
+      .on('data', async row => {
+        if (row.content.length < 8191) {
+          promises.push(vectorDb.addItem(row.content));
+          return;
+        }
+
+        const chunks = row.content.match(/.{1,8191}/g) as string[];
+        for (const chunk of chunks) {
+          promises.push(vectorDb.addItem(chunk));
+        }
+      })
+      .on('end', () => resolve(true));
+  });
+
+  let i = 1;
+  for (const promise of promises) {
+    console.log(
+      `[${Math.ceil((i / promises.length) * 100)}%] Indexing chunk ${i++} of ${
+        promises.length
+      }...`,
+    );
+    await promise;
+  }
+
+  console.log(
+    colors.green(`Indexed data in ${formatDistanceToNowStrict(start)}`),
+  );
+})();
