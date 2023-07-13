@@ -31,5 +31,5 @@ if (!prompt) {
 
   const reply = await vectorDb.query(prompt, embeddings);
 
-  console.log(colors.green(`A: ${reply}`));
+  console.log(colors.green(`A:${reply}`));
 })();

@@ -89,9 +89,8 @@ class VectorDB {
         .map(embedding => embedding.item?.metadata?.text)
         .join(' ')
         .substring(0, 3800)}\n\nQ: ${text}\n\nA: `,
-      max_tokens: 80,
+      max_tokens: 150,
       stop: ['A: '],
-      n: 1,
       temperature: 0.3,
     });
 
