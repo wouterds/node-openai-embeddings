@@ -1,6 +1,7 @@
 import colors from 'colors';
 import { config as dotenv } from 'dotenv';
 import fs from 'fs';
+import { LocalIndex } from 'vectra';
 import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs/yargs';
 
@@ -21,3 +22,14 @@ if (!fs.existsSync(csv)) {
   console.log(colors.red(`File ${csv} does not exist`));
   process.exit(1);
 }
+
+(async () => {
+  const index = new LocalIndex('./data/index');
+
+  if (!(await index.isIndexCreated())) {
+    console.log('Creating new index');
+    await index.createIndex();
+  } else {
+    console.log('Re-using existing index');
+  }
+})();
