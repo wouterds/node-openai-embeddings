@@ -8,10 +8,12 @@
     "lint:ts": "tsc --noEmit"
   },
   "dependencies": {
+    "colors": "^1.4.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.6",
     "@commitlint/config-conventional": "^17.6.6",
+    "@types/colors": "^1.2.1",
     "@types/node": "^20.4.1",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
