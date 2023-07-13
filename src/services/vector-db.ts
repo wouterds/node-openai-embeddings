@@ -1,3 +1,4 @@
+import colors from 'colors';
 import { Configuration, OpenAIApi } from 'openai';
 import { LocalIndex } from 'vectra';
 
@@ -14,16 +15,24 @@ class VectorDB {
   public async init() {
     const exists = await this._index.isIndexCreated();
     if (exists) {
-      console.log(`Re-using existing index: ${this._path}`);
+      console.log(
+        colors.yellow(
+          `Re-using existing index: ${colors.underline(this._path)}`,
+        ),
+      );
       return;
     }
 
-    console.log(`Creating new index: ${this._path}`);
+    console.log(
+      colors.yellow(`Creating new index: ${colors.underline(this._path)}`),
+    );
     await this._index.createIndex();
   }
 
   private get openai() {
     if (!this._openai) {
+      console.log('Initializing OpenAI API');
+
       this._openai = new OpenAIApi(
         new Configuration({
           apiKey: process.env.OPENAI_API_KEY,
