@@ -12,12 +12,18 @@ dotenv();
 
 type Args = {
   csv?: string;
+  field?: string;
 };
 
-const { csv } = yargs(hideBin(process.argv)).argv as Args;
+const { csv, field } = yargs(hideBin(process.argv)).argv as Args;
 
 if (!csv) {
   console.log(colors.red('Please provide a csv with the --csv flag'));
+  process.exit(1);
+}
+
+if (!field) {
+  console.log(colors.red('Please provide a field with the --field flag'));
   process.exit(1);
 }
 
@@ -38,12 +44,12 @@ console.log(colors.yellow(`CSV: ${colors.underline(csv)}`));
     fs.createReadStream(csv)
       .pipe(csvParser())
       .on('data', async row => {
-        if (row.content.length < 8191) {
-          promises.push(vectorDb.addItem(row.content));
+        if (row[field]?.length < 8191) {
+          promises.push(vectorDb.addItem(row[field]));
           return;
         }
 
-        const chunks = row.content.match(/.{1,8191}/g) as string[];
+        const chunks = row[field].match(/.{1,8191}/g) as string[];
         for (const chunk of chunks) {
           promises.push(vectorDb.addItem(chunk));
         }
