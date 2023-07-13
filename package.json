@@ -6,7 +6,8 @@
     "lint": "eslint ./src --ext .ts",
     "lint:fix": "eslint ./src --ext .ts --fix",
     "lint:ts": "tsc --noEmit",
-    "cli:generate-db": "ts-node ./src/cli/generate-db.ts"
+    "cli:generate-db": "ts-node ./src/cli/generate-db.ts",
+    "cli:query": "ts-node ./src/cli/query.ts"
   },
   "dependencies": {
     "colors": "^1.4.0",

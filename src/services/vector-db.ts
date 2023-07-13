@@ -1,6 +1,6 @@
 import colors from 'colors';
 import { Configuration, OpenAIApi } from 'openai';
-import { LocalIndex } from 'vectra';
+import { LocalIndex, MetadataTypes, QueryResult } from 'vectra';
 
 class VectorDB {
   private _path: string;
@@ -68,6 +68,34 @@ class VectorDB {
     } catch {
       return false;
     }
+  }
+
+  public async getEmbeddings(text: string, limit = 2) {
+    const vector = await this.getVector(text);
+    if (!vector) {
+      return null;
+    }
+
+    return await this._index.queryItems(vector, limit);
+  }
+
+  public async query(
+    text: string,
+    embeddings: QueryResult<Record<string, MetadataTypes>>[],
+  ) {
+    const response = await this.openai.createCompletion({
+      model: 'text-davinci-003',
+      prompt: `Context:${embeddings
+        .map(embedding => embedding.item?.metadata?.text)
+        .join(' ')
+        .substring(0, 3800)}\n\nQ: ${text}\n\nA: `,
+      max_tokens: 80,
+      stop: ['A: '],
+      n: 1,
+      temperature: 0.3,
+    });
+
+    return response.data.choices[0].text;
   }
 }
 
